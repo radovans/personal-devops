@@ -1,5 +1,4 @@
 ---
-
 # common
 - hosts: all
   sudo: yes
@@ -13,5 +12,6 @@
   sudo: yes
 
   roles:
+    - docker
     - gitlab
     - gitlab-runner

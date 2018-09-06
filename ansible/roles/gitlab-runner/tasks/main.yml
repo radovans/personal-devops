@@ -3,14 +3,11 @@
   get_url: 
     url: https://gitlab-runner-downloads.s3.amazonaws.com/latest/binaries/gitlab-runner-linux-amd64
     dest: /usr/local/bin/gitlab-runner
-  become: yes
   
 - name: Give it permissions to execute
   file:
-    dest: /usr/local/bin/gitlab-runner
-    state: directory
-    mode: a+x
-  become: yes
+    path: /usr/local/bin/gitlab-runner
+    mode: +x
   
 - name: Create a GitLab CI user
   user:
@@ -19,8 +16,8 @@
     shell: /bin/bash
     create_home: true
 
-- name: Install and run as service
-  command: sudo gitlab-runner install --user=gitlab-runner --working-directory=/home/gitlab-runner
+- name: Install gitlab-runner
+  command: gitlab-runner install --user=gitlab-runner --working-directory=/home/gitlab-runner
   
 - name: Install and run as service
-  command: sudo gitlab-runner start
+  command: gitlab-runner start

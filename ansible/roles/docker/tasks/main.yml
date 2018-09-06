@@ -1,0 +1,11 @@
+---
+- name: Check if Docker is already installed.
+  stat: path=/usr/bin/docker
+  register: docker_file
+
+# curl -sSL https://get.docker.com/ | sh
+- name: Install Docker from sh script.
+  shell: "curl -sSL https://get.docker.com/ | sh"
+  args:
+    warn: no
+  when: (docker_file.stat.exists == false)
