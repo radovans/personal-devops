@@ -14,3 +14,4 @@
 
   roles:
     - gitlab
+    - gitlab-runner
