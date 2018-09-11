@@ -1,5 +1,4 @@
 ---
-# common
 - hosts: all
   sudo: yes
   gather_facts: no
@@ -7,8 +6,8 @@
   roles:
     - common
 
-# gitlab
-- hosts: gitlab
+
+- hosts: development
   sudo: yes
 
   roles:

@@ -8,6 +8,7 @@
 - vagrant
 - ansible
 - gitlab
+- docker
 
 ### Installation guide
 Start vagrant and connect to mgmt node
@@ -18,7 +19,7 @@ $ vagrant ssh mgmt
 
 Save ssh key of servers into known_hosts to remove ask pass, generate ssh key and install it on hosts.
 ```sh
-$ ssh-keyscan gitlab >> .ssh/known_hosts
+$ ssh-keyscan dev host1 host2 >> .ssh/known_hosts
 $ ssh-keygen -t rsa -b 2048 -f /home/vagrant/.ssh/id_rsa -q -N ""
 $ ansible-playbook bin/ssh-addkey.yml -e "ansible_ssh_pass=vagrant"
 ```
@@ -38,9 +39,9 @@ After installation is succeeded just open browser and change initial password fo
 http://10.0.15.11:80/
 ```
 
-Connect to gitlab server and register runner and supply registration-token from `http://10.0.15.11:80/admin/runners`
+Connect to dev server and register runner and supply registration-token from `http://10.0.15.11:80/admin/runners`
 ```sh
-$ ssh gitlab
+$ ssh dev
 $ sudo gitlab-runner register \
     --non-interactive \
     --url "http://10.0.15.11/" \
