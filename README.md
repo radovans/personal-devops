@@ -19,7 +19,7 @@ $ vagrant ssh mgmt
 
 Save ssh key of servers into known_hosts to remove ask pass, generate ssh key and install it on hosts.
 ```sh
-$ ssh-keyscan dev host1 host2 >> .ssh/known_hosts
+$ ssh-keyscan dev host1 host2 haproxy >> .ssh/known_hosts
 $ ssh-keygen -t rsa -b 2048 -f /home/vagrant/.ssh/id_rsa -q -N ""
 $ ansible-playbook bin/ssh-addkey.yml -e "ansible_ssh_pass=vagrant"
 ```
@@ -28,9 +28,8 @@ $ ansible-playbook bin/ssh-addkey.yml -e "ansible_ssh_pass=vagrant"
 GITLAB
 -------------------------
 
-Connect to mgmt host and run ansible-playbook to configure gitlab
+Run ansible-playbook to configure gitlab
 ```sh
-$ vagrant ssh mgmt
 $ ansible-playbook role-gitlab.yml
 ```
 
@@ -53,3 +52,15 @@ $ sudo gitlab-runner register \
     --run-untagged \
     --locked="false" \
 ```
+
+-------------------------
+WEB, HAPROXY
+-------------------------
+
+Run ansible-playbook to configure web sites and haproxy
+```sh
+$ ansible-playbook role-site.yml
+```
+
+Sites are directly available at `http://10.0.15.21/` and `http://10.0.15.22/`. If you want to go trough load balancer you need to visit `http://localhost:8080/`
+HAProxy is available at `http://localhost:8080/haproxy?stats`.

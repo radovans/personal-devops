@@ -34,4 +34,15 @@ Vagrant.configure("2") do |config|
       end
   end
 
+  # create load balancer
+  config.vm.define :haproxy do |haproxy_config|
+      haproxy_config.vm.box = "ubuntu/trusty64"
+      haproxy_config.vm.hostname = "haproxy"
+      haproxy_config.vm.network :private_network, ip: "10.0.15.12"
+      haproxy_config.vm.network "forwarded_port", guest: 80, host: 8080
+      haproxy_config.vm.provider "virtualbox" do |vb|
+        vb.memory = "256"
+     end
+  end
+
 end

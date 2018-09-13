@@ -1,0 +1,21 @@
+---
+- hosts: all
+  sudo: yes
+  gather_facts: no
+
+  roles:
+    - common
+
+
+- hosts: hosts
+  sudo: yes
+
+  roles:
+    - web
+
+
+- hosts: haproxy
+  sudo: yes
+
+  roles:
+    - haproxy
