@@ -1,0 +1,45 @@
+---
+- name: Creating directory for certificates
+  file: path=/etc/pki state=directory
+
+- name: Copying client forwarder SSL certificate from mgmt node
+  copy:
+    src: /home/vagrant/beat-forwarder.crt
+    dest: /etc/pki/beat-forwarder.crt
+
+- name: Copying client forwarder SSL key from mgmt node
+  copy:
+    src: /home/vagrant/beat-forwarder.key
+    dest: /etc/pki/beat-forwarder.key
+
+- name: Adding Elasticsearch apt key
+  apt_key:
+    url: "https://packages.elastic.co/GPG-KEY-elasticsearch"
+    state: present
+
+- name: Adding Elasticsearch repo
+  apt_repository:
+    repo: deb https://artifacts.elastic.co/packages/6.x/apt stable main
+    state: present
+
+- name: Installing Filebeat
+  apt:
+    name: filebeat
+    update_cache: yes
+
+- name: Generating Filebeat configuration template
+  template:
+    src=filebeat.yml.j2
+    dest=/etc/filebeat/filebeat.yml
+    owner=root
+    group=root
+    mode=0644
+#  become: true
+  register: filebeat_needs_restart
+
+- name: Setuping Filebeat service
+  service:
+    name: filebeat
+    state: started
+    enabled: true
+#  become: true

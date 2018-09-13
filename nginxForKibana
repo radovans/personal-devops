@@ -1,0 +1,42 @@
+Install Nginx
+Because we configured Kibana to listen on localhost, we must set up a reverse proxy to allow external access to it. We will use Nginx for this purpose.
+
+Note: If you already have an Nginx instance that you want to use, feel free to use that instead. Just make sure to configure Kibana so it is reachable by your Nginx server (you probably want to change the host value, in /opt/kibana/config/kibana.yml, to your Kibana server's private IP address or hostname). Also, it is recommended that you enable SSL/TLS.
+
+Use apt to install Nginx and Apache2-utils:
+
+sudo apt-get install nginx apache2-utils
+Use htpasswd to create an admin user, called "kibanaadmin" (you should use another name), that can access the Kibana web interface:
+
+sudo htpasswd -c /etc/nginx/htpasswd.users kibanaadmin
+Enter a password at the prompt. Remember this login, as you will need it to access the Kibana web interface.
+
+Now open the Nginx default server block in your favorite editor. We will use vi:
+
+sudo vi /etc/nginx/sites-available/default
+Delete the file's contents, and paste the following code block into the file. Be sure to update the server_name to match your server's name:
+
+/etc/nginx/sites-available/default
+server {
+    listen 80;
+
+    server_name example.com;
+
+    auth_basic "Restricted Access";
+    auth_basic_user_file /etc/nginx/htpasswd.users;
+
+    location / {
+        proxy_pass http://localhost:5601;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+Save and exit. This configures Nginx to direct your server's HTTP traffic to the Kibana application, which is listening on localhost:5601. Also, Nginx will use the htpasswd.users file, that we created earlier, and require basic authentication.
+
+Now restart Nginx to put our changes into effect:
+
+sudo service nginx restart
+Kibana is now accessible via your FQDN or the public IP address of your ELK Server i.e. http://elk-server-public-ip/. If you go there in a web browser, after entering the "kibanaadmin" credentials, you should see a Kibana welcome page which will ask you to configure an index pattern. Let's get back to that later, after we install all of the other components.

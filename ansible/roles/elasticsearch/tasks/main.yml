@@ -1,0 +1,45 @@
+---
+- name: Adding Elasticsearch apt key
+  apt_key:
+   url: "https://packages.elastic.co/GPG-KEY-elasticsearch"
+   state: present
+
+- name: Adding Elasticsearch repo
+  apt_repository:
+   repo: deb https://artifacts.elastic.co/packages/6.x/apt stable main
+   state: present
+
+- name: Installing Elasticsearch
+  apt:
+   name: elasticsearch
+   update_cache: yes
+
+- name: Updating the config file to allow outside access
+  lineinfile:
+   destfile: /etc/elasticsearch/elasticsearch.yml
+   regexp: 'network.host:'
+   line: 'network.host: localhost'
+
+- name: Updating the port in config file
+  lineinfile:
+   destfile: /etc/elasticsearch/elasticsearch.yml
+   regexp: 'http.port:'
+   line: 'http.port: 9200'
+
+- name: Updating the min heap size in jvm.options
+  lineinfile:
+   destfile: /etc/elasticsearch/jvm.options
+   regexp: '-Xms2g'
+   line: '-Xms512m'
+
+- name: Updating the max heap size in jvm.options
+  lineinfile:
+   destfile: /etc/elasticsearch/jvm.options
+   regexp: '-Xmx2g'
+   line: '-Xmx512m'
+
+- name: Starting Elasticsearch
+  service:
+   name: elasticsearch
+   state: started
+   enabled: true

@@ -1,0 +1,67 @@
+---
+- name: Installing Logstash
+  apt:
+   name: logstash
+   update_cache: yes
+
+- name: Copying Logstash configuration
+  template:
+    src=logstash.conf.j2
+    dest=/etc/logstash/conf.d/logstash.conf
+    owner=logstash
+    group=logstash
+    mode=0644
+  become: true
+
+- name: Starting Logstash
+  service:
+   name: logstash
+   state: started
+
+- name: Checking OpenSSL SANs (SubjectAltName) entry for CA
+  shell: grep "10.0.15.13" /etc/ssl/openssl.cnf | wc -l
+  ignore_errors: true
+  register: subjectAltName_exists
+  tags:
+  - skip_ansible_lint
+  become: true
+
+- name: Adding OpenSSL SANs (SubjectAltName) entry for CA
+  lineinfile:
+    dest: /etc/ssl/openssl.cnf
+    line: 'subjectAltName = IP: 10.0.15.13'
+    regexp: '^ Extensions for a typical CA'
+    insertbefore: '# Extensions for a typical CA'
+    backup: yes
+  when: subjectAltName_exists.stdout|int == 0
+  become: true
+
+- name: Checking Filebeat forwarder SSL certificate
+  stat: path=/usr/share/logstash/beat-forwarder.crt
+  register: filebeat_forwarder_ssl_exists
+  become: true
+
+- name: Creating client forwarder SSL certificate
+  command: openssl req -config /etc/ssl/openssl.cnf \
+    -x509 -days 3650 -batch -nodes -newkey rsa:2048 -keyout /usr/share/logstash/beat-forwarder.key \
+    -out /usr/share/logstash/beat-forwarder.crt
+  when: filebeat_forwarder_ssl_exists != 0
+  become: true
+
+- name: Copying client forwarder SSL certificate to mgmt node
+  fetch:
+    src: /usr/share/logstash/beat-forwarder.crt
+    dest: /home/vagrant/beat-forwarder.crt
+    flat: true
+
+- name: Copying client forwarder SSL key to mgmt node
+  fetch:
+    src: /usr/share/logstash/beat-forwarder.key
+    dest: /home/vagrant/beat-forwarder.key
+    flat: true
+
+- name: Starting Logstash
+  service:
+    name: logstash
+    state: restarted
+    enabled: true
