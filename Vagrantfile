@@ -45,4 +45,14 @@ Vagrant.configure("2") do |config|
      end
   end
 
+  # create elk server
+  config.vm.define :elk do |elk_config|
+      elk_config.vm.box = "ubuntu/trusty64"
+      elk_config.vm.hostname = "elk"
+      elk_config.vm.network :private_network, ip: "10.0.15.13"
+      elk_config.vm.provider "virtualbox" do |vb|
+        vb.memory = "4096"
+      end
+  end
+
 end

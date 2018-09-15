@@ -1,0 +1,16 @@
+---
+- hosts: elk
+  sudo: yes
+
+  roles:
+    - java # required by elasticsearch
+    - elasticsearch
+    - logstash
+    - kibana
+
+
+- hosts: hosts
+  sudo: yes
+
+  roles:
+  - filebeat
