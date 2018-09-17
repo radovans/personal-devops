@@ -13,3 +13,6 @@
 - name: deploy website content
   template: src=index.html.j2 dest=/usr/share/nginx/html/index.html
 
+- name: test request
+  uri:
+    url: http://localhost:80/
